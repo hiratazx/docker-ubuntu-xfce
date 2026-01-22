@@ -33,25 +33,35 @@ WORKDIR $HOME
 # Expose ports
 EXPOSE $VNC_PORT $NO_VNC_PORT
 
-# Add scripts
-ADD ./src/scripts $SCRIPTS_DIR
-RUN find $SCRIPTS_DIR -name '*.sh' -exec chmod a+x {} +
+# Create scripts dir
+RUN mkdir -p $SCRIPTS_DIR
 
-# Install OS packages
-RUN $SCRIPTS_DIR/packages.sh
+# Install OS packages (Cache this layer)
+COPY ./src/scripts/packages.sh $SCRIPTS_DIR/
+RUN chmod a+x $SCRIPTS_DIR/packages.sh && $SCRIPTS_DIR/packages.sh
 
-# Install required softwares
-RUN $SCRIPTS_DIR/core.sh
+# Install required softwares (Cache this layer)
+COPY ./src/scripts/core.sh $SCRIPTS_DIR/
+RUN chmod a+x $SCRIPTS_DIR/core.sh && $SCRIPTS_DIR/core.sh
+
+# Add XFCE config (Cache this layer)
 ADD ./src/xfce $HOME
 
 # Install required utilities
-RUN $SCRIPTS_DIR/utils.sh
+COPY ./src/scripts/utils.sh $SCRIPTS_DIR/
+RUN chmod a+x $SCRIPTS_DIR/utils.sh && $SCRIPTS_DIR/utils.sh
 
 # Post configurations
-RUN $SCRIPTS_DIR/post-configs.sh
+COPY ./src/scripts/post-configs.sh $SCRIPTS_DIR/
+RUN chmod a+x $SCRIPTS_DIR/post-configs.sh && $SCRIPTS_DIR/post-configs.sh
 
 # Set permissions
-RUN $SCRIPTS_DIR/set-permissions.sh $SCRIPTS_DIR $HOME
+COPY ./src/scripts/set-permissions.sh $SCRIPTS_DIR/
+RUN chmod a+x $SCRIPTS_DIR/set-permissions.sh && $SCRIPTS_DIR/set-permissions.sh $SCRIPTS_DIR $HOME
+
+# Copy startup scripts (Last layer, most frequent changes)
+COPY ./src/scripts/vnc-startup.sh ./src/scripts/generate-container-user.sh $SCRIPTS_DIR/
+RUN chmod a+x $SCRIPTS_DIR/vnc-startup.sh $SCRIPTS_DIR/generate-container-user.sh
 
 # Entrypoint
 ENTRYPOINT ["/root/scripts/vnc-startup.sh"]
