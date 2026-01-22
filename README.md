@@ -1,53 +1,57 @@
 ### Docker image with Ubuntu OS, Xfce desktop & VNC container
 
-### Docker Hub Image:
-https://hub.docker.com/r/hiratazx/docker-ubuntu-xfce/
+### Docker Hub Image
+[hiratazx/docker-ubuntu-xfce](https://hub.docker.com/r/hiratazx/docker-ubuntu-xfce/)
 
 Docker image is installed with the following components:
-* UBUNTU 24.04 (Noble Numbat)
-* Xfce desktop
-* VNC server (default VNC port: 5901)
-* VNC client with html5 support (default http port: 6901)
+* Ubuntu 24.04 (Noble Numbat)
+* Xfce Desktop
+* VNC server (TigerVNC, default port: 5901)
+* noVNC client (HTML5, default port: 6901)
 * OpenSSH
 * Java (OpenJDK 8)
-* Git
-* Ant
-* Vim
-* Mozilla Firefox
-* Google Chrome
-* Sublime Editor
+* Git, Ant, Vim, Sublime Text
+* Mozilla Firefox, Google Chrome
 
-### Usage:
-Run command with mapping to local port 5901 (vnc protocol) and 6901 (vnc web access):
-- `docker run -d -p 5901:5901 -p 6901:6901 hiratazx/docker-ubuntu-xfce`
+### Usage
 
-If you want to get into the container use interactive mode:
-- `docker run -it -p 5901:5901 -p 6901:6901 --entrypoint /bin/bash hiratazx/docker-ubuntu-xfce`
+**Run command with mapping to local port 5901 (VNC) and 6901 (noVNC):**
+```bash
+docker run -d -p 5901:5901 -p 6901:6901 hiratazx/docker-ubuntu-xfce
+```
 
-If you want to override the VNC resolution:
-- `docker run -d -p 5901:5901 -p 6901:6901 -e VNC_RESOLUTION=1360x768 hiratazx/docker-ubuntu-xfce`
+**Interactive mode:**
+```bash
+docker run -it -p 5901:5901 -p 6901:6901 --entrypoint /bin/bash hiratazx/docker-ubuntu-xfce
+```
 
-If you want to change the VNC password:
-- `docker run -d -p 5901:5901 -p 6901:6901 -e VNC_PW=[vnc-password] hiratazx/docker-ubuntu-xfce`
+**Override VNC resolution:**
+```bash
+docker run -d -p 5901:5901 -p 6901:6901 -e VNC_RESOLUTION=1360x768 hiratazx/docker-ubuntu-xfce
+```
 
-Build an image from scratch:
-- `docker build -t hiratazx/docker-ubuntu-xfce .`
+**Change VNC password:**
+```bash
+docker run -d -p 5901:5901 -p 6901:6901 -e VNC_PW=mypassword hiratazx/docker-ubuntu-xfce
+```
+
+**Build image from scratch:**
+```bash
+docker build -t hiratazx/docker-ubuntu-xfce .
+```
+
+### Connection ports
+* **VNC port:** 5901 - Connect with `[host-ip]:5901`
+* **noVNC port:** 6901 - Connect via `http://[host-ip]:6901/?password=[vnc-password]`
 
 ### CI/CD
-This repository is equipped with a GitHub Actions workflow that allows for manual triggering of Docker builds and pushes to Docker Hub.
-- **Workflow**: `Docker Build and Push`
-- **Trigger**: Manual (`workflow_dispatch`)
+This repository uses GitHub Actions for manual Docker builds and pushes to Docker Hub.
+* **Workflow:** `Docker Build and Push`
+* **Trigger:** Manual (`workflow_dispatch`)
 
-### Connection ports for controlling the UI:
-- VNC port: 5901, connect with `[host-ip]:5901`
-- noVNC port: 6901, connect via `http://[host-ip]:6901/?password=[vnc-password]`
+### Credits
+* [Tobias Schneck](https://hub.docker.com/r/consol/ubuntu-xfce-vnc)
+* [Jitesh Sojitra](https://hub.docker.com/r/jiteshsojitra/docker-ubuntu-xfce-container)
 
-### Note:
-- There are some settings in docker container which are required for building Zimbra Selenium (https://github.com/Zimbra/zm-selenium).
-
-### Credits:
-- Tobias Schneck (https://hub.docker.com/r/consol/ubuntu-xfce-vnc)
-- Jitesh Sojitra (https://hub.docker.com/r/jiteshsojitra/docker-ubuntu-xfce-container)
-
-### Contact:
-- hiratazx <itzkaguya@yukiprjkt.my.id>
+### Contact
+* hiratazx <itzkaguya@yukiprjkt.my.id>

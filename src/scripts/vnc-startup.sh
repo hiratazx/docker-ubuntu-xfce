@@ -28,11 +28,19 @@ fi
 echo "$VNC_PW" | vncpasswd -f >> $PASSWD_PATH
 chmod 600 $PASSWD_PATH
 
+# Create xstartup file
+echo "#!/bin/sh" > $HOME/.vnc/xstartup
+echo "xrdb $HOME/.Xresources" >> $HOME/.vnc/xstartup
+echo "xsetroot -solid grey" >> $HOME/.vnc/xstartup
+echo "export XKL_XMODMAP_DISABLE=1" >> $HOME/.vnc/xstartup
+echo "/etc/X11/Xsession" >> $HOME/.vnc/xstartup
+echo "$HOME/wm-startup.sh" >> $HOME/.vnc/xstartup
+chmod +x $HOME/.vnc/xstartup
+
 # Start vncserver and noVNC webclient
-$NO_VNC_DIR/utils/launch.sh --vnc localhost:$VNC_PORT --listen $NO_VNC_PORT &
+websockify -D --web=/usr/share/novnc/ $NO_VNC_PORT localhost:$VNC_PORT
 vncserver -kill $DISPLAY || rm -rfv /tmp/.X*-lock /tmp/.X11-unix || echo "Remove old vnc locks to be a reattachable container"
-vncserver $DISPLAY -depth $VNC_COL_DEPTH -geometry $VNC_RESOLUTION
-$HOME/wm-startup.sh
+vncserver $DISPLAY -depth $VNC_COL_DEPTH -geometry $VNC_RESOLUTION -localhost no
 
 # Log connect options
 echo -e "\n\n------------------ VNC environment started ------------------"

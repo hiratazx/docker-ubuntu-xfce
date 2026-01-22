@@ -39,7 +39,11 @@ apt-get -qq install -y apt-utils \
 	bzip2 \
 	python3-numpy \
 	libnss-wrapper \
-	gettext
+	gettext \
+	dbus-x11
+
+echo "Generating locales..."
+locale-gen en_US.UTF-8
 
 echo "Downloading ant contrib jar file..."
 cd ~/.zcs-deps && wget https://files.zimbra.com/repository/ant-contrib/ant-contrib-1.0b1.jar
