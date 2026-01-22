@@ -35,6 +35,7 @@ EXPOSE $VNC_PORT $NO_VNC_PORT
 
 # Create scripts dir and user
 RUN mkdir -p $SCRIPTS_DIR && \
+    userdel -r ubuntu && \
     useradd -m -s /bin/bash -u 1000 itzkaguya && \
     echo "itzkaguya ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
