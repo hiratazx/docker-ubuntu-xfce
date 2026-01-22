@@ -36,12 +36,13 @@ EXPOSE $VNC_PORT $NO_VNC_PORT
 # Create scripts dir and user
 RUN mkdir -p $SCRIPTS_DIR && \
     userdel -r ubuntu && \
-    useradd -m -s /bin/bash -u 1000 itzkaguya && \
-    echo "itzkaguya ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+    useradd -m -s /bin/bash -u 1000 itzkaguya
 
 # Install OS packages (Cache this layer)
 COPY --chown=itzkaguya:itzkaguya ./src/scripts/packages.sh $SCRIPTS_DIR/
-RUN chmod a+x $SCRIPTS_DIR/packages.sh && $SCRIPTS_DIR/packages.sh
+RUN chmod a+x $SCRIPTS_DIR/packages.sh && $SCRIPTS_DIR/packages.sh && \
+    echo "itzkaguya ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/itzkaguya && \
+    chmod 0440 /etc/sudoers.d/itzkaguya
 
 # Install required softwares (Cache this layer)
 COPY --chown=itzkaguya:itzkaguya ./src/scripts/core.sh $SCRIPTS_DIR/
