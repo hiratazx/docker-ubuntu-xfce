@@ -11,7 +11,29 @@ ENVIRONMENT_FILE="/etc/environment"
 echo 'LANG=en_US.utf-8' >> $ENVIRONMENT_FILE
 echo 'LANGUAGE='en_US:en'' >> $ENVIRONMENT_FILE
 
-# Update the repository sources list
+# Purge snapd and prevent reinstallation
+echo "Purging snapd..."
+apt-get -qq purge -y snapd gnome-software-plugin-snap
+rm -rf ~/snap /var/cache/snapd /usr/lib/snapd
+
+# Block snapd
+echo "Blocking snapd..."
+cat > /etc/apt/preferences.d/nosnap.pref <<EOF
+Package: snapd
+Pin: release a=*
+Pin-Priority: -10
+EOF
+
+# Add Mozilla PPA for native Firefox
+echo "Adding Mozilla PPA..."
+add-apt-repository -y ppa:mozillateam/ppa
+echo '
+Package: *
+Pin: release o=LP-PPA-mozillateam
+Pin-Priority: 1001
+' > /etc/apt/preferences.d/mozilla-firefox
+
+# Update sources
 echo "Updating the repository sources list..."
 apt-get -qq autoremove -y
 apt-get -qq update -y
