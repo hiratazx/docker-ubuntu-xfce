@@ -13,9 +13,9 @@ LABEL maintainer="hiratazx <itzkaguya@yukiprjkt.my.id>"
 
 # Environment variables
 ENV REFRESHED_AT=2026-01-22
-ENV HOME=/root \
-	SCRIPTS_DIR=/root/scripts \
-	NO_VNC_DIR=/root/noVNC \
+ENV HOME=/home/itzkaguya \
+	SCRIPTS_DIR=/home/itzkaguya/scripts \
+	NO_VNC_DIR=/home/itzkaguya/noVNC \
 	DISPLAY=:1 \
 	TERM=xterm \
 	VNC_PORT=5901 \
@@ -33,36 +33,41 @@ WORKDIR $HOME
 # Expose ports
 EXPOSE $VNC_PORT $NO_VNC_PORT
 
-# Create scripts dir
-RUN mkdir -p $SCRIPTS_DIR
+# Create scripts dir and user
+RUN mkdir -p $SCRIPTS_DIR && \
+    useradd -m -s /bin/bash -u 1000 itzkaguya && \
+    echo "itzkaguya ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # Install OS packages (Cache this layer)
-COPY ./src/scripts/packages.sh $SCRIPTS_DIR/
+COPY --chown=itzkaguya:itzkaguya ./src/scripts/packages.sh $SCRIPTS_DIR/
 RUN chmod a+x $SCRIPTS_DIR/packages.sh && $SCRIPTS_DIR/packages.sh
 
 # Install required softwares (Cache this layer)
-COPY ./src/scripts/core.sh $SCRIPTS_DIR/
+COPY --chown=itzkaguya:itzkaguya ./src/scripts/core.sh $SCRIPTS_DIR/
 RUN chmod a+x $SCRIPTS_DIR/core.sh && $SCRIPTS_DIR/core.sh
 
 # Add XFCE config (Cache this layer)
-ADD ./src/xfce $HOME
+ADD --chown=itzkaguya:itzkaguya ./src/xfce $HOME
 
 # Install required utilities
-COPY ./src/scripts/utils.sh $SCRIPTS_DIR/
+COPY --chown=itzkaguya:itzkaguya ./src/scripts/utils.sh $SCRIPTS_DIR/
 RUN chmod a+x $SCRIPTS_DIR/utils.sh && $SCRIPTS_DIR/utils.sh
 
 # Post configurations
-COPY ./src/scripts/post-configs.sh $SCRIPTS_DIR/
+COPY --chown=itzkaguya:itzkaguya ./src/scripts/post-configs.sh $SCRIPTS_DIR/
 RUN chmod a+x $SCRIPTS_DIR/post-configs.sh && $SCRIPTS_DIR/post-configs.sh
 
 # Set permissions
-COPY ./src/scripts/set-permissions.sh $SCRIPTS_DIR/
+COPY --chown=itzkaguya:itzkaguya ./src/scripts/set-permissions.sh $SCRIPTS_DIR/
 RUN chmod a+x $SCRIPTS_DIR/set-permissions.sh && $SCRIPTS_DIR/set-permissions.sh $SCRIPTS_DIR $HOME
 
 # Copy startup scripts (Last layer, most frequent changes)
-COPY ./src/scripts/vnc-startup.sh ./src/scripts/generate-container-user.sh $SCRIPTS_DIR/
+COPY --chown=itzkaguya:itzkaguya ./src/scripts/vnc-startup.sh ./src/scripts/generate-container-user.sh $SCRIPTS_DIR/
 RUN chmod a+x $SCRIPTS_DIR/vnc-startup.sh $SCRIPTS_DIR/generate-container-user.sh
 
+# Switch to user
+USER itzkaguya
+
 # Entrypoint
-ENTRYPOINT ["/root/scripts/vnc-startup.sh"]
+ENTRYPOINT ["/home/itzkaguya/scripts/vnc-startup.sh"]
 CMD ["--tail-log"]
