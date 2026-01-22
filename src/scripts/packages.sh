@@ -11,9 +11,14 @@ ENVIRONMENT_FILE="/etc/environment"
 echo 'LANG=en_US.utf-8' >> $ENVIRONMENT_FILE
 echo 'LANGUAGE='en_US:en'' >> $ENVIRONMENT_FILE
 
+# Update the repository sources list
+echo "Updating the repository sources list..."
+apt-get -qq update -y
+apt-get -qq install -y software-properties-common
+
 # Purge snapd and prevent reinstallation
 echo "Purging snapd..."
-apt-get -qq purge -y snapd gnome-software-plugin-snap
+apt-get -qq purge -y snapd gnome-software-plugin-snap || true
 rm -rf ~/snap /var/cache/snapd /usr/lib/snapd
 
 # Block snapd
